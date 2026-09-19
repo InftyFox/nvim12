@@ -1,14 +1,15 @@
 # Neovim 0.12 Configuration
 
-A small, plugin-free Neovim 0.12 configuration for macOS on Apple Silicon.
-It uses a separate application name so it can coexist with an existing Neovim
-0.11 setup.
+A small Neovim 0.12 configuration for macOS on Apple Silicon. It uses a
+separate application name so it can coexist with an existing Neovim 0.11
+setup.
 
 ## Requirements
 
 - macOS on Apple Silicon
 - Homebrew
 - Neovim 0.12
+- Git
 
 Install Neovim from Homebrew and verify the versioned binary:
 
@@ -40,7 +41,34 @@ nvim12
 ```
 
 Neovim keeps this setup's data, state, and cache separate under directories
-named `nvim-012`. Phase 1 installs no plugins or external tools.
+named `nvim-012`.
+
+On the first start, `vim.pack` asks for confirmation before installing Rose
+Pine. Confirm the installation, then commit the generated
+`nvim-pack-lock.json`. Later starts use the installed plugin and the revision
+recorded in that lockfile.
+
+## Plugin Updates
+
+Update all registered plugins from inside Neovim:
+
+```vim
+:lua vim.pack.update()
+```
+
+Review the proposed changes in the confirmation buffer. Write the buffer with
+`:write` to apply them or close it with `:quit` to discard them. Restart Neovim
+after applying an update, review the lockfile diff, and commit the updated
+`nvim-pack-lock.json` together with any required configuration changes.
+
+To restore the plugin revisions from the committed lockfile after an unwanted
+update, first restore `nvim-pack-lock.json` with Git. Restart Neovim, then run:
+
+```vim
+:lua vim.pack.update(nil, { offline = true, target = "lockfile" })
+```
+
+Review and apply the proposed rollback with `:write`, then restart Neovim.
 
 ## Health Checks
 
