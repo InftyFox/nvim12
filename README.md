@@ -10,6 +10,10 @@ setup.
 - Homebrew
 - Neovim 0.12
 - Git
+- ripgrep (`rg`)
+- fd
+- Yazi
+- A Nerd Font for navigation icons
 
 Install Neovim from Homebrew and verify the versioned binary:
 
@@ -17,6 +21,22 @@ Install Neovim from Homebrew and verify the versioned binary:
 brew install neovim
 /opt/homebrew/opt/neovim/bin/nvim --version
 ```
+
+Install the navigation tools and a Nerd Font with Homebrew:
+
+```sh
+brew install ripgrep fd yazi
+brew install --cask font-meslo-lg-nerd-font
+```
+
+Configure the installed Nerd Font in Ghostty:
+
+```ini
+font-family = "MesloLGM Nerd Font Propo"
+```
+
+`rg` provides project text search, `fd` provides fast file discovery, and Yazi
+handles interactive file operations.
 
 ## Installation
 
@@ -43,8 +63,8 @@ nvim12
 Neovim keeps this setup's data, state, and cache separate under directories
 named `nvim-012`.
 
-On the first start, `vim.pack` asks for confirmation before installing Rose
-Pine. Confirm the installation, then commit the generated
+On the first start, `vim.pack` asks for confirmation before installing the
+registered plugins. Confirm the installation, then commit the generated
 `nvim-pack-lock.json`. Later starts use the installed plugin and the revision
 recorded in that lockfile.
 
