@@ -3,6 +3,7 @@
 -- be available on the system PATH.
 local yazi = require("yazi")
 
+---@type YaziConfig | {}
 yazi.setup({
     -- Do not take over directory buffers; Snacks remains the default explorer.
     open_for_directories = false,

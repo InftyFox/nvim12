@@ -16,7 +16,18 @@ Snacks.setup({
         },
         sources = {
             -- Dotfiles remain visible in the project explorer.
-            explorer = { hidden = true },
+            explorer = {
+                hidden = true,
+                auto_close = false,
+                jump = { close = true },
+                layout = {
+                    preset = "vertical",
+                    preview = false,
+                },
+            },
+            files = { hidden = true },
+            grep = { hidden = true },
+            grep_word = { hidden = true },
         },
     },
 })
