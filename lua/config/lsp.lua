@@ -1,3 +1,4 @@
+-- Shared diagnostic presentation for every attached language server.
 vim.diagnostic.config({
     signs = true,
     underline = true,
@@ -9,6 +10,7 @@ vim.diagnostic.config({
 
 local group = vim.api.nvim_create_augroup("LspConfiguration", { clear = true })
 
+-- Enable completion only in buffers whose attached server supports it.
 vim.api.nvim_create_autocmd("LspAttach", {
     group = group,
     desc = "Enable native LSP completion",
@@ -25,6 +27,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end,
 })
 
+-- Keep diagnostic details explicit instead of opening floats automatically.
 vim.keymap.set("n", "<leader>cd", function()
     vim.diagnostic.open_float(nil, {
         scope = "line",
@@ -33,6 +36,7 @@ vim.keymap.set("n", "<leader>cd", function()
     })
 end, { desc = "Show line diagnostics" })
 
+-- Tab accepts a visible completion, then falls back to native snippet navigation.
 vim.keymap.set({ "i", "s" }, "<Tab>", function()
     if vim.fn.pumvisible() == 1 then
         return "<C-y>"
@@ -45,6 +49,7 @@ vim.keymap.set({ "i", "s" }, "<Tab>", function()
     return "<Tab>"
 end, { expr = true, silent = true, desc = "Accept completion or jump in snippet" })
 
+-- Enter always inserts a newline; it never accepts the selected completion.
 vim.keymap.set("i", "<CR>", function()
     if vim.fn.pumvisible() == 1 then
         return "<C-e><CR>"
@@ -53,4 +58,5 @@ vim.keymap.set("i", "<CR>", function()
     return "<CR>"
 end, { expr = true, silent = true, desc = "Cancel completion and insert newline" })
 
+-- nvim-lspconfig provides the base profile; after/lsp/lua_ls.lua extends it.
 vim.lsp.enable("lua_ls")
