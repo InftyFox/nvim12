@@ -13,6 +13,8 @@ setup.
 - ripgrep (`rg`)
 - fd
 - Yazi
+- Lua Language Server (`lua-language-server`)
+- StyLua
 - A Nerd Font for navigation icons
 
 Install Neovim from Homebrew and verify the versioned binary:
@@ -22,10 +24,11 @@ brew install neovim
 /opt/homebrew/opt/neovim/bin/nvim --version
 ```
 
-Install the navigation tools and a Nerd Font with Homebrew:
+Install the navigation and Lua development tools plus a Nerd Font with
+Homebrew:
 
 ```sh
-brew install ripgrep fd yazi
+brew install ripgrep fd yazi lua-language-server stylua
 brew install --cask font-meslo-lg-nerd-font
 ```
 
@@ -36,7 +39,25 @@ font-family = "MesloLGM Nerd Font Propo"
 ```
 
 `rg` provides project text search, `fd` provides fast file discovery, and Yazi
-handles interactive file operations.
+handles interactive file operations. `lua-language-server` provides Lua LSP
+features. StyLua formats Lua files explicitly with `<leader>cf` and before each
+save.
+
+Language servers, formatters, linters, CLIs, and SDKs are installed outside
+Neovim and must be available on `$PATH`. Neovim configures and activates the
+tools but does not install or update them.
+
+### Language Tooling
+
+`nvim-lspconfig` provides the base server profiles. Add only local extensions
+or overrides under `after/lsp/<server>.lua`; Neovim discovers and merges these
+files automatically. Enable each server explicitly with
+`vim.lsp.enable("<server>")` in `lua/config/lsp.lua`.
+
+Install new language servers and formatters with Homebrew or the language's
+package manager. Register external formatters by filetype in
+`lua/plugins/coding/conform.lua`. Conform prefers a configured external
+formatter and uses LSP formatting when no external formatter is available.
 
 ## Installation
 
@@ -97,6 +118,7 @@ Run the following commands inside Neovim:
 ```vim
 :checkhealth
 :checkhealth vim.deprecated
+:checkhealth vim.lsp
 ```
 
 The existing Neovim 0.11 binary and configuration remain unchanged and provide

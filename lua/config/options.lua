@@ -21,5 +21,6 @@ opt.smartcase = true
 
 -- Editing
 opt.clipboard:append("unnamedplus")
+opt.completeopt = { "menu", "menuone", "noinsert", "popup" }
 opt.splitright = true
 opt.splitbelow = true
