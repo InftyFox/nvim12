@@ -138,6 +138,12 @@ end, { desc = "Search word or selection" })
 map("n", "<leader>fr", function()
     Snacks.picker.recent()
 end, { desc = "Find recent files" })
+map("n", "<leader>fb", function()
+    Snacks.picker.buffers({ unloaded = false })
+end, { desc = "Find open buffers" })
+map("n", "<leader>fg", function()
+    Snacks.picker.git_status()
+end, { desc = "Find Git changes" })
 
 -- LSP discovery -------------------------------------------------------------
 -- These pickers need an attached language server that supports the requested
