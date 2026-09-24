@@ -15,6 +15,8 @@ setup.
 - Yazi
 - Lua Language Server (`lua-language-server`)
 - StyLua
+- JSON Language Server (`vscode-json-language-server`)
+- YAML Language Server (`yaml-language-server`)
 - A Nerd Font for navigation icons
 
 Install Neovim from Homebrew and verify the versioned binary:
@@ -24,11 +26,12 @@ brew install neovim
 /opt/homebrew/opt/neovim/bin/nvim --version
 ```
 
-Install the navigation and Lua development tools plus a Nerd Font with
-Homebrew:
+Install the navigation, Lua, JSON, and YAML development tools plus a Nerd Font
+with Homebrew:
 
 ```sh
 brew install ripgrep fd yazi lua-language-server stylua
+brew install vscode-langservers-extracted yaml-language-server
 brew install --cask font-meslo-lg-nerd-font
 ```
 
@@ -41,7 +44,10 @@ font-family = "MesloLGM Nerd Font Propo"
 `rg` provides project text search, `fd` provides fast file discovery, and Yazi
 handles interactive file operations. `lua-language-server` provides Lua LSP
 features. StyLua formats Lua files explicitly with `<leader>cf` and before each
-save.
+save. The JSON and YAML language servers provide diagnostics and completion;
+their LSP formatting is used with `<leader>cf` and on save. No separate JSON or
+YAML formatter or linter is required. YAML validation against a particular
+schema requires a schema association in the project or file.
 
 Language servers, formatters, linters, CLIs, and SDKs are installed outside
 Neovim and must be available on `$PATH`. Neovim configures and activates the
@@ -49,15 +55,27 @@ tools but does not install or update them.
 
 ### Language Tooling
 
-`nvim-lspconfig` provides the base server profiles. Add only local extensions
-or overrides under `after/lsp/<server>.lua`; Neovim discovers and merges these
-files automatically. Enable each server explicitly with
+`nvim-lspconfig` provides the `lua_ls`, `jsonls`, and `yamlls` base server
+profiles. Add only local extensions or overrides under
+`after/lsp/<server>.lua`; Neovim discovers and merges these files
+automatically. Enable each server explicitly with
 `vim.lsp.enable("<server>")` in `lua/config/lsp.lua`.
+
+Put filetype-specific editor options in `after/ftplugin/<filetype>.lua`. These
+files apply to matching buffers; for example, `after/ftplugin/json.lua` sets
+indentation options for JSON files.
 
 Install new language servers and formatters with Homebrew or the language's
 package manager. Register external formatters by filetype in
 `lua/plugins/coding/conform.lua`. Conform prefers a configured external
 formatter and uses LSP formatting when no external formatter is available.
+
+To discover available language servers, formatters, and linters, browse the
+[Mason package registry](https://github.com/mason-org/mason-registry/tree/main/packages).
+Package definitions link to their upstream projects and show how the tools are
+distributed. Use those references to identify the tools you need; this
+configuration installs external tools through Homebrew or the language's
+package manager.
 
 ## Installation
 

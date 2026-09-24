@@ -1,6 +1,6 @@
 -- Native LSP client configuration shared by every language server. Servers and
 -- external tools are installed outside Neovim; this module controls how Neovim
--- presents their results and enables `lua_ls`. See `:help lsp`.
+-- presents their results and enables language profiles. See `:help lsp`.
 
 -- Keep diagnostics visible through signs and underlines, but avoid adding text
 -- beside or below every affected line. Details remain available on demand.
@@ -73,7 +73,9 @@ vim.keymap.set("i", "<CR>", function()
     return "<CR>"
 end, { expr = true, silent = true, desc = "Cancel completion and insert newline" })
 
--- nvim-lspconfig provides the base profile; Neovim automatically merges the
--- local extension from `after/lsp/lua_ls.lua` before starting the server.
+-- nvim-lspconfig provides the base profiles; Neovim automatically merges the
+-- local extension from `after/lsp/lua_ls.lua` before starting that server.
 -- See `:help vim.lsp.enable()` and `:help lsp-config`.
 vim.lsp.enable("lua_ls")
+vim.lsp.enable("jsonls")
+vim.lsp.enable("yamlls")
