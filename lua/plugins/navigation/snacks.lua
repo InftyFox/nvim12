@@ -52,13 +52,7 @@ end
 local function picker_confirm(picker, item, action)
     local view = picker_preview_view(picker, item)
     local scroll = picker._preview_scroll
-    if
-        view
-        and scroll
-        and scroll.item == view.item
-        and scroll.first == view.first
-        and scroll.last == view.last
-    then
+    if view and scroll and scroll.item == view.item and scroll.first == view.first and scroll.last == view.last then
         item.pos = { math.floor((view.first + view.last) / 2), 0 }
     end
 
@@ -157,6 +151,12 @@ end, { desc = "Find workspace symbols" })
 map("n", "<leader>sr", function()
     Snacks.picker.lsp_references()
 end, { desc = "Find references" })
+map("n", "<leader>sd", function()
+    Snacks.picker.lsp_definitions()
+end, { desc = "Find definitions" })
+map("n", "<leader>st", function()
+    Snacks.picker.lsp_type_definitions()
+end, { desc = "Find type definitions" })
 
 -- Project tree --------------------------------------------------------------
 map("n", "<leader>ew", function()
