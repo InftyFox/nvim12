@@ -17,6 +17,7 @@ setup.
 - StyLua
 - JSON Language Server (`vscode-json-language-server`)
 - YAML Language Server (`yaml-language-server`)
+- .NET SDK and C# Language Server (`csharp-ls`) for C# projects
 - A Nerd Font for navigation icons
 
 Install Neovim from Homebrew and verify the versioned binary:
@@ -35,6 +36,28 @@ brew install vscode-langservers-extracted yaml-language-server
 brew install --cask font-meslo-lg-nerd-font
 ```
 
+Install the .NET SDK with Homebrew, then install the C# language server as a
+global .NET tool:
+
+```sh
+brew install dotnet
+dotnet tool install --global csharp-ls
+```
+
+Alternatively, install the .NET SDK using Microsoft's macOS installer before
+installing `csharp-ls` with the `dotnet tool` command above.
+
+Add the global .NET tools directory to `~/.zshrc` so Neovim started from an
+interactive zsh session can find `csharp-ls`:
+
+```zsh
+export PATH="$HOME/.dotnet/tools:$PATH"
+```
+
+Open a new terminal and confirm that `command -v csharp-ls` resolves to
+`~/.dotnet/tools/csharp-ls`. C# projects need a `.csproj`, `.sln`, or `.slnx`
+file for the language server to find the project root.
+
 Configure the installed Nerd Font in Ghostty:
 
 ```ini
@@ -49,14 +72,18 @@ their LSP formatting is used with `<leader>cf` and on save. No separate JSON or
 YAML formatter or linter is required. YAML validation against a particular
 schema requires a schema association in the project or file.
 
+`csharp-ls` provides C# diagnostics, completion, and navigation. C# formatting
+uses the existing LSP fallback with `<leader>cf` and on save when the server
+supports it; no separate C# formatter or linter is configured.
+
 Language servers, formatters, linters, CLIs, and SDKs are installed outside
 Neovim and must be available on `$PATH`. Neovim configures and activates the
 tools but does not install or update them.
 
 ### Language Tooling
 
-`nvim-lspconfig` provides the `lua_ls`, `jsonls`, and `yamlls` base server
-profiles. Add only local extensions or overrides under
+`nvim-lspconfig` provides the `lua_ls`, `jsonls`, `yamlls`, and `csharp_ls`
+base server profiles. Add only local extensions or overrides under
 `after/lsp/<server>.lua`; Neovim discovers and merges these files
 automatically. Enable each server explicitly with
 `vim.lsp.enable("<server>")` in `lua/config/lsp.lua`.

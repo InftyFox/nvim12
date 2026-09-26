@@ -79,3 +79,4 @@ end, { expr = true, silent = true, desc = "Cancel completion and insert newline"
 vim.lsp.enable("lua_ls")
 vim.lsp.enable("jsonls")
 vim.lsp.enable("yamlls")
+vim.lsp.enable("csharp_ls")
