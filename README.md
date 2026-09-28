@@ -18,7 +18,7 @@ setup.
 - JSON Language Server (`vscode-json-language-server`)
 - YAML Language Server (`yaml-language-server`)
 - .NET SDK and C# Language Server (`csharp-ls`) for C# projects
-- A Nerd Font for navigation icons
+- A Nerd Font for navigation and Markdown icons
 
 Install Neovim from Homebrew and verify the versioned binary:
 
@@ -75,6 +75,14 @@ schema requires a schema association in the project or file.
 `csharp-ls` provides C# diagnostics, completion, and navigation. C# formatting
 uses the existing LSP fallback with `<leader>cf` and on save when the server
 supports it; no separate C# formatter or linter is configured.
+
+Markdown files use `render-markdown.nvim` for an in-editor rendered view in all
+modes, with `mini.icons` for code-block language icons. Neovim 0.12 provides the
+required `markdown` and `markdown_inline` parsers; no separate parser or
+Markdown language server needs installing. The plugin provides checkbox and
+callout completion through its in-process LSP. Markdown lines wrap visually at
+word boundaries, without changing the file. No external Markdown formatter or
+linter is configured.
 
 Language servers, formatters, linters, CLIs, and SDKs are installed outside
 Neovim and must be available on `$PATH`. Neovim configures and activates the
