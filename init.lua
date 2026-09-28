@@ -12,6 +12,7 @@ require("config.packages")
 
 -- Plugin setup is grouped by purpose rather than by startup phase.
 require("plugins.ui.rose-pine")
+require("plugins.ui.mini-icons")
 require("plugins.navigation.snacks")
 require("plugins.navigation.yazi")
 
@@ -19,3 +20,4 @@ require("plugins.navigation.yazi")
 -- and on plugins registered above. Conform owns formatting policy separately.
 require("config.lsp")
 require("plugins.coding.conform")
+require("plugins.coding.render-markdown")

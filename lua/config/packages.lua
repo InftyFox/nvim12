@@ -12,4 +12,6 @@ vim.pack.add({
     { src = "https://github.com/mikavilpas/yazi.nvim", name = "yazi.nvim" },
     { src = "https://github.com/neovim/nvim-lspconfig", name = "nvim-lspconfig" },
     { src = "https://github.com/stevearc/conform.nvim", name = "conform.nvim" },
+    { src = "https://github.com/nvim-mini/mini.icons", name = "mini.icons" },
+    { src = "https://github.com/MeanderingProgrammer/render-markdown.nvim", name = "render-markdown.nvim" },
 })
