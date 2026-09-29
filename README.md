@@ -84,6 +84,12 @@ callout completion through its in-process LSP. Markdown lines wrap visually at
 word boundaries, without changing the file. No external Markdown formatter or
 linter is configured.
 
+`mini.ai` adds text objects such as `ab` (balanced brackets) and `aq` (quotes)
+for Visual mode and operators, for example `vab` or `daq`. Its `an`/`in`
+mappings deliberately replace Neovim's native incremental selection with
+next-object search; `g]` remains Neovim's tag command. Language-specific
+function, class, and conditional text objects are not configured yet.
+
 Language servers, formatters, linters, CLIs, and SDKs are installed outside
 Neovim and must be available on `$PATH`. Neovim configures and activates the
 tools but does not install or update them.

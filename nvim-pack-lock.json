@@ -4,6 +4,10 @@
       "rev": "016802de402556da54c36bd7359b441266b01cdd",
       "src": "https://github.com/stevearc/conform.nvim"
     },
+    "mini.ai": {
+      "rev": "6c39ae7b11abe479fbe1bc81bf00ac6bca7afa07",
+      "src": "https://github.com/nvim-mini/mini.ai"
+    },
     "mini.icons": {
       "rev": "f642e3ba8c12afbc8f32f6d77ef6597eac56786f",
       "src": "https://github.com/nvim-mini/mini.icons"
