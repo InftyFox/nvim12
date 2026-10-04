@@ -46,6 +46,8 @@ vim.keymap.set("n", "<leader>cd", function()
     })
 end, { desc = "Show line diagnostics" })
 
+vim.keymap.set({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP code actions" })
+
 -- These expression mappings return the keys Neovim should execute. This keeps
 -- one Tab workflow for the completion popup, native snippets, and literal tabs.
 -- See `:help map-expression` and `:help vim.snippet`.
@@ -62,16 +64,6 @@ vim.keymap.set({ "i", "s" }, "<Tab>", function()
 
     return "<Tab>"
 end, { expr = true, silent = true, desc = "Accept completion or jump in snippet" })
-
--- Enter deliberately never accepts a completion. When the popup is visible,
--- `<C-e>` dismisses it before the normal newline is inserted.
-vim.keymap.set("i", "<CR>", function()
-    if vim.fn.pumvisible() == 1 then
-        return "<C-e><CR>"
-    end
-
-    return "<CR>"
-end, { expr = true, silent = true, desc = "Cancel completion and insert newline" })
 
 -- nvim-lspconfig provides the base profiles; Neovim automatically merges the
 -- local extension from `after/lsp/lua_ls.lua` before starting that server.

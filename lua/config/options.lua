@@ -14,6 +14,8 @@ opt.cursorline = true
 opt.termguicolors = true
 -- Reserve the sign column so diagnostics do not shift the text when appearing.
 opt.signcolumn = "yes"
+-- ask for quit and save when quitting without saving changes
+opt.confirm = true
 
 -- Indentation ---------------------------------------------------------------
 -- Insert spaces for tabs and use a consistent width for typed tabs, automatic

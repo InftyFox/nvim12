@@ -18,6 +18,7 @@ setup.
 - JSON Language Server (`vscode-json-language-server`)
 - YAML Language Server (`yaml-language-server`)
 - .NET SDK and C# Language Server (`csharp-ls`) for C# projects
+- `tree-sitter-cli` 0.26.1 or newer, `tar`, `curl`, and a C compiler for additional Treesitter parsers
 - A Nerd Font for navigation and Markdown icons
 
 Install Neovim from Homebrew and verify the versioned binary:
@@ -74,7 +75,17 @@ schema requires a schema association in the project or file.
 
 `csharp-ls` provides C# diagnostics, completion, and navigation. C# formatting
 uses the existing LSP fallback with `<leader>cf` and on save when the server
-supports it; no separate C# formatter or linter is configured.
+supports it; no separate C# formatter or linter is configured. The optional
+`c_sharp` Treesitter parser adds syntax-tree highlighting and the class/function
+context at the top of the window. C# files have the `cs` filetype, which this
+config associates with the `c_sharp` parser. Until it is installed, C# retains
+Neovim's regular syntax highlighting. Indentation continues to use Neovim's
+existing filetype behavior even after parser installation; experimental
+Treesitter indentation is not enabled.
+
+`<leader>ca` requests native LSP code actions in Normal mode or for a Visual
+selection. It requires an attached language server that supports code actions;
+the available actions depend on the server and the selected code.
 
 Markdown files use `render-markdown.nvim` for an in-editor rendered view in all
 modes, with `mini.icons` for code-block language icons. Neovim 0.12 provides the
@@ -86,9 +97,37 @@ linter is configured.
 
 `mini.ai` adds text objects such as `ab` (balanced brackets) and `aq` (quotes)
 for Visual mode and operators, for example `vab` or `daq`. Its `an`/`in`
-mappings deliberately replace Neovim's native incremental selection with
-next-object search; `g]` remains Neovim's tag command. Language-specific
-function, class, and conditional text objects are not configured yet.
+mappings deliberately use next-object search; `al`/`il` use last-object search.
+Native incremental selection is preserved in Visual mode as `<leader>ls`
+(expand to a parent node) and `<leader>lS` (shrink to a child node). Start with
+`v`, then use these mappings repeatedly. They retain Neovim's LSP selection-range
+fallback when no Treesitter parser is available and a supporting server is
+attached. Native `[n`/`]n` node navigation and the `g]` tag command remain
+available. `aF` selects a function definition including its signature; `iF`
+selects its body. The exact ranges follow the language queries supplied by
+`nvim-treesitter-textobjects` (the `main` branch), which is loaded as a query
+provider for `mini.ai`. This includes Lua functions and C# methods/local
+functions; for C# expression-bodied functions, `iF` selects the expression.
+These text objects work in Visual mode (`vaF`, `viF`) and with operators
+(`daF`, `ciF`). When adding a language supported by the provider's function
+queries, install its parser; the same mappings work without local query files
+or per-language mapping changes. Languages without those captures need an
+upstream or local query addition. `mini.ai`'s default `af`/`if` still select
+function calls. Class and conditional text objects are not mapped.
+
+`mini.pairs` automatically closes brackets and quotes in Insert mode. Its default
+rules skip pairing after a backslash and skip single-quote pairing after a
+letter. Backspace removes an empty pair, and typing its closing character skips
+over the existing one. Enter dismisses completion without accepting it, then
+uses `mini.pairs` to split an empty `()`, `[]`, or `{}` pair: the closing bracket
+moves to its own line, with the cursor on the inner line. Indentation follows
+the existing filetype rules. Elsewhere Enter inserts a normal newline; quotes
+are not split into an extra blank line.
+`mini.surround` adds, deletes, and replaces surroundings with `sa{motion}{char}`
+(or `sa{char}` on a Visual selection), `sd{char}`, and `sr{old}{new}`.
+`nvim-treesitter-context` pins the surrounding class or function at the top of
+the window while scrolling in files with a suitable parser; it shows at most
+three context lines. Indent and scope guides are not enabled.
 
 Language servers, formatters, linters, CLIs, and SDKs are installed outside
 Neovim and must be available on `$PATH`. Neovim configures and activates the
@@ -144,9 +183,42 @@ Neovim keeps this setup's data, state, and cache separate under directories
 named `nvim-012`.
 
 On the first start, `vim.pack` asks for confirmation before installing the
-registered plugins. Confirm the installation, then commit the generated
-`nvim-pack-lock.json`. Later starts use the installed plugin and the revision
-recorded in that lockfile.
+registered plugins. Confirm the installation, then verify the configured
+workflows before committing the generated `nvim-pack-lock.json`. Later starts
+use the installed plugin and the revision recorded in that lockfile.
+
+### Treesitter Parsers
+
+Neovim includes parsers for Lua and Markdown. Additional parsers are installed
+separately from the plugins; `nvim-pack-lock.json` pins plugins, not compiled
+parsers. Install only the parsers needed for configured language profiles.
+Currently C# needs the `c_sharp` parser for its syntax tree and pinned context.
+
+On macOS, install the parser build tools yourself before installing a parser:
+
+```sh
+brew install tree-sitter
+tree-sitter --version
+xcrun --find clang
+```
+
+`tree-sitter-cli` must be version 0.26.1 or later. Install Apple's Command Line
+Tools if `xcrun --find clang` cannot find a C compiler. `tar` and `curl` must
+also be on `$PATH`. After the first Neovim start has installed the registered
+plugins, install the C# parser inside Neovim:
+
+```vim
+:TSInstall c_sharp
+```
+
+Wait for the installation to finish, then reopen a C# file. Use
+`:checkhealth nvim-treesitter`, `:checkhealth vim.treesitter`, `:Inspect`, and
+`:InspectTree` to verify the parser and highlighting. If an install fails,
+`:TSLog` shows the installer messages. To add another language later, first
+check that it is actually needed, install its parser with `:TSInstall {parser}`,
+and explicitly enable highlighting for its filetype, as done for C# in
+`lua/plugins/coding/treesitter.lua`. Installing a parser alone does not enable
+Treesitter highlighting.
 
 ## Plugin Updates
 
@@ -160,6 +232,11 @@ Review the proposed changes in the confirmation buffer. Write the buffer with
 `:write` to apply them or close it with `:quit` to discard them. Restart Neovim
 after applying an update, review the lockfile diff, and commit the updated
 `nvim-pack-lock.json` together with any required configuration changes.
+
+After updating `nvim-treesitter`, run `:TSUpdate c_sharp` in Neovim to keep the
+installed C# parser and its queries compatible with the plugin, then reopen the
+C# file. `:TSUpdate` without an argument updates all parsers installed through
+`nvim-treesitter`.
 
 To restore the plugin revisions from the committed lockfile after an unwanted
 update, first restore `nvim-pack-lock.json` with Git. Restart Neovim, then run:

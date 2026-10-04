@@ -3,11 +3,13 @@
   "permission": {
     "external_directory": {
       "~/.local/share/nvim*/**": "allow",
-      "/opt/homebrew/opt/neovim/share/nvim/runtime/doc/*": "allow"
+      "/opt/homebrew/opt/neovim/share/nvim/runtime/doc/*": "allow",
+      "/opt/homebrew/opt/neovim/share/nvim/*": "allow"
     },
     "edit": {
       "~/.local/share/nvim*/**": "deny",
-      "/opt/homebrew/opt/neovim/share/nvim/runtime/doc/*": "deny"
+      "/opt/homebrew/opt/neovim/share/nvim/runtime/doc/*": "deny",
+      "/opt/homebrew/opt/neovim/share/nvim/*": "deny"
     }
   }
 }

@@ -14,5 +14,14 @@ vim.pack.add({
     { src = "https://github.com/stevearc/conform.nvim", name = "conform.nvim" },
     { src = "https://github.com/nvim-mini/mini.icons", name = "mini.icons" },
     { src = "https://github.com/nvim-mini/mini.ai", name = "mini.ai" },
+    { src = "https://github.com/nvim-mini/mini.pairs", name = "mini.pairs" },
+    { src = "https://github.com/nvim-mini/mini.surround", name = "mini.surround" },
+    { src = "https://github.com/nvim-treesitter/nvim-treesitter", name = "nvim-treesitter" },
+    {
+        src = "https://github.com/nvim-treesitter/nvim-treesitter-textobjects",
+        name = "nvim-treesitter-textobjects",
+        version = "main",
+    },
+    { src = "https://github.com/nvim-treesitter/nvim-treesitter-context", name = "nvim-treesitter-context" },
     { src = "https://github.com/MeanderingProgrammer/render-markdown.nvim", name = "render-markdown.nvim" },
 })

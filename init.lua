@@ -15,6 +15,8 @@ require("plugins.ui.rose-pine")
 require("plugins.ui.mini-icons")
 require("plugins.navigation.snacks")
 require("plugins.navigation.yazi")
+require("plugins.coding.treesitter")
+require("plugins.ui.treesitter-context")
 
 -- Language tooling is last because it builds on the general editor behavior
 -- and on plugins registered above. Conform owns formatting policy separately.
@@ -22,3 +24,5 @@ require("config.lsp")
 require("plugins.coding.conform")
 require("plugins.coding.render-markdown")
 require("plugins.coding.mini-ai")
+require("plugins.coding.mini-pairs")
+require("plugins.coding.mini-surround")
