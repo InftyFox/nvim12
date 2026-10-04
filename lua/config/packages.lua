@@ -11,6 +11,11 @@ vim.pack.add({
     { src = "https://github.com/nvim-lua/plenary.nvim", name = "plenary.nvim" },
     { src = "https://github.com/mikavilpas/yazi.nvim", name = "yazi.nvim" },
     { src = "https://github.com/neovim/nvim-lspconfig", name = "nvim-lspconfig" },
+    {
+        src = "https://github.com/saghen/blink.cmp",
+        name = "blink.cmp",
+        version = "v1.10.2",
+    },
     { src = "https://github.com/stevearc/conform.nvim", name = "conform.nvim" },
     { src = "https://github.com/nvim-mini/mini.icons", name = "mini.icons" },
     { src = "https://github.com/nvim-mini/mini.ai", name = "mini.ai" },

@@ -10,6 +10,7 @@ setup.
 - Homebrew
 - Neovim 0.12
 - Git
+- `curl` for Blink's prebuilt completion matcher download
 - ripgrep (`rg`)
 - fd
 - Yazi
@@ -118,11 +119,13 @@ function calls. Class and conditional text objects are not mapped.
 `mini.pairs` automatically closes brackets and quotes in Insert mode. Its default
 rules skip pairing after a backslash and skip single-quote pairing after a
 letter. Backspace removes an empty pair, and typing its closing character skips
-over the existing one. Enter dismisses completion without accepting it, then
-uses `mini.pairs` to split an empty `()`, `[]`, or `{}` pair: the closing bracket
-moves to its own line, with the cursor on the inner line. Indentation follows
-the existing filetype rules. Elsewhere Enter inserts a normal newline; quotes
-are not split into an extra blank line.
+over the existing one. Enter accepts the selected Blink completion when its menu
+is visible; otherwise it inserts a pair-aware newline. Shift-Enter dismisses
+completion without accepting it and always inserts that newline. Inside an empty
+`()`, `[]`, or `{}` pair, the closing bracket moves to its own line, with the
+cursor on the inner line. Indentation follows the existing filetype rules.
+Elsewhere a normal newline is inserted; quotes are not split into an extra blank
+line.
 `mini.surround` adds, deletes, and replaces surroundings with `sa{motion}{char}`
 (or `sa{char}` on a Visual selection), `sd{char}`, and `sr{old}{new}`.
 `nvim-treesitter-context` pins the surrounding class or function at the top of
@@ -156,6 +159,69 @@ Package definitions link to their upstream projects and show how the tools are
 distributed. Use those references to identify the tools you need; this
 configuration installs external tools through Homebrew or the language's
 package manager.
+
+## Completion
+
+[`blink.cmp`](https://cmp.saghen.dev/) provides automatic insert-mode completion
+using LSP results, file paths, and words from visible normal buffers. Buffer words
+are a fallback when the LSP and path sources do not return candidates. The first
+candidate is selected automatically, but navigating the menu does not insert text
+until a candidate is accepted. The previous native LSP autocompletion is disabled
+so only Blink owns the menu. Command-line completion remains native.
+
+| Key | Action |
+| --- | --- |
+| Enter | Accept the selected completion, or insert a pair-aware newline if no completion is selected |
+| Shift-Enter | Cancel completion and insert a pair-aware newline |
+| Tab / Shift-Tab | Jump to the next / previous native snippet placeholder; otherwise use the normal key behavior |
+| `Ctrl-n` / `Ctrl-p`, Down / Up | Select the next / previous completion |
+| `Ctrl-Space` | Open completion, or toggle documentation when the menu is open |
+| `Ctrl-e` | Close completion |
+| `Ctrl-d` / `Ctrl-u` | Scroll completion documentation down / up by four lines; otherwise use the normal key behavior |
+| `Ctrl-k` | Toggle signature help |
+
+Documentation appears automatically without an added display delay when the
+selected item provides it. Updates when switching items use Blink's default
+50 ms delay. Experimental signature help is requested after accepting completion
+and on language-server trigger characters, showing the function signature and
+active parameter when the server provides them, without an additional
+documentation block. Blink's default automatic
+function brackets are enabled; `mini.pairs` handles manually typed brackets.
+Ghost text is disabled. LSP-provided snippets expand through native `vim.snippet`;
+no separate snippet provider or collection is enabled.
+
+### Installation and Verification
+
+Blink is pinned to the stable `v1.10.2` release through `vim.pack`. On your first
+start after it is registered, confirm the plugin installation. Blink then uses
+`curl` and Git to download the matching prebuilt Rust matcher for macOS Apple
+Silicon automatically; a Rust toolchain is not required. If the matcher is
+unavailable, the default `prefer_rust_with_warning` behavior falls back to Lua and
+reports a warning. Typo resistance, frecency, and proximity ranking require the
+Rust implementation. See the [matcher documentation](https://cmp.saghen.dev/configuration/fuzzy.html).
+
+Wait for installation and the matcher download to finish, then restart Neovim.
+Check `:checkhealth blink.cmp`, `:checkhealth vim.lsp`, and `:messages`. The Blink
+health report should show the Rust matcher is available. The generated
+`nvim-pack-lock.json` records Blink's revision and release tag; review it after
+installation. Advancing Blink to another release requires deliberately changing
+the registered tag before updating the plugin.
+
+Verify automatic and manual completion in Lua, C#, JSON, YAML, and Markdown.
+Check Markdown checkbox and callout suggestions from the existing
+`render-markdown` LSP, plus path completion in a quoted relative path and buffer
+word completion when neither LSP nor path suggestions are available. Check Enter,
+Shift-Enter, snippet navigation, documentation scrolling, and signature help.
+Function completion must not add duplicate brackets, and only one completion
+menu should appear. Shift-Enter must arrive as a distinct key from the terminal;
+verify `:verbose imap <S-CR>` if its behavior is unexpected.
+
+For an isolated native snippet navigation check, run this command in a scratch
+buffer, then use Tab and Shift-Tab between the placeholders:
+
+```vim
+:lua vim.snippet.expand("${1:first} ${2:second}$0")
+```
 
 ## Installation
 

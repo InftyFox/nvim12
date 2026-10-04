@@ -136,13 +136,13 @@ Snippet-Manager SnipSnap folgt in Phase 13b.
 
 ### Schritte
 
-- [ ] `blink.cmp` wegen der im Alltag unzureichenden nativen Completion mit
+- [x] `blink.cmp` wegen der im Alltag unzureichenden nativen Completion mit
       `vim.pack` einführen; zunächst LSP-, Pfad- und Buffer-Vorschläge
       einrichten.
-- [ ] Die bisherige native Completion-Aktivierung und ihre Mappings
+- [x] Die bisherige native Completion-Aktivierung und ihre Mappings
       (`<C-Space>`, `<Tab>`, `<CR>`) auf Konflikte prüfen und den gewünschten
       Bedienablauf mit `blink.cmp` festlegen.
-- [ ] Completion in Lua, C#, JSON/YAML und Markdown prüfen, insbesondere
+- [x] Completion in Lua, C#, JSON/YAML und Markdown prüfen, insbesondere
       Checkbox- und Callout-Vorschläge von `render-markdown.nvim`.
       Snippet-Quellen erst bei konkretem Bedarf ergänzen; die Verwaltung
       persönlicher Snippets bleibt Phase 13b.
@@ -158,7 +158,7 @@ Snippet-Manager SnipSnap folgt in Phase 13b.
 
 ### Verifikation
 
-- [ ] Automatische und manuell ausgelöste Vorschläge sowie Bestätigen,
+- [x] Automatische und manuell ausgelöste Vorschläge sowie Bestätigen,
       Abbrechen und der Tab-Workflow funktionieren in den eingerichteten
       Sprachen und Markdown ohne doppelte Completion-Menüs.
 - [ ] Ein repräsentatives Refactoring liefert das erwartete Ergebnis oder
@@ -171,6 +171,45 @@ Snippet-Manager SnipSnap folgt in Phase 13b.
 Completion, die tatsächlich benötigten Refactorings und Lua-Hilfen sind
 abgedeckt; diese Phase setzt weder SnipSnap noch die optionalen Sprachprofile
 voraus.
+
+### Zwischenstand – 2026-10-04
+
+Blink ist installiert; der Nutzer hat die bisherigen Completion-Praxistests
+erfolgreich bestätigt. Die ergänzte Signaturhilfe direkt nach dem Bestätigen
+einer Completion benötigt noch einen Praxistest. **Phase 8 ist noch nicht
+abgeschlossen.**
+
+- `blink.cmp` ist mit dem stabilen Release `v1.10.2` registriert und vom Nutzer
+  über `vim.pack` installiert. Das erzeugte Lockfile enthält den passenden Tag
+  und die Release-Revision `78336bc89ee5365633bcf754d93df01678b5c08f`.
+- Blink übernimmt automatische Completion aus LSP und Pfaden; Wörter aus
+  sichtbaren normalen Buffern dienen als Fallback. Native LSP-Autocompletion
+  und deren bisherige Mappings wurden abgelöst.
+- Der erste Treffer ist vorausgewählt, wird aber erst beim Bestätigen eingefügt.
+  Enter bestätigt den Vorschlag und erzeugt ohne ausgewählten Vorschlag einen
+  Zeilenumbruch. Shift-Enter bricht Completion ab und erzeugt immer den bisherigen
+  `mini.pairs`-Zeilenumbruch. Tab/Shift-Tab dienen Snippet-Sprüngen; `<C-n>`/`<C-p>`
+  und Pfeiltasten navigieren im Menü. `<C-Space>` öffnet Completion beziehungsweise
+  schaltet die Dokumentation um; `<C-e>` schließt das Menü.
+- Dokumentation erscheint ohne zusätzliche Anzeigeverzögerung und wird mit
+  `<C-d>`/`<C-u>` gescrollt; Aktualisierungen behalten Blinks gültigen Standard
+  von 50 ms. Automatische kompakte Signaturhilfe wird auch nach dem Bestätigen
+  einer Completion angefordert (`signature.trigger.show_on_accept = true`).
+  Blinks standardmäßige Funktionsklammern sind aktiviert; Ghost Text ist deaktiviert.
+  LSP-Snippets verwenden weiterhin `vim.snippet`, ohne zusätzliche Snippet-Quelle.
+- Installation, Bedienung und Praxistests sind in der englischen README erklärt.
+  Der Nutzer hat die Tests einschließlich Shift-Enter, Funktionsklammern,
+  Snippet-Sprüngen, Dokumentationsscrollen und Markdown-Vorschlägen bestätigt.
+- StyLua und Lua-Syntaxprüfungen für die fünf geänderten/neuen Lua-Dateien sowie
+  `git diff --check` sind erfolgreich. Ein isolierter Test mit dem vorhandenen
+  `mini.pairs` bestätigt Paaraufteilung und normale Zeilenumbrüche über Enter
+  und Shift-Enter. Nach einem ungültigen `update_delay_ms = 0` hat der Nutzer
+  beide Delay-Overrides entfernt und den erfolgreichen Start bestätigt. Nur
+  das zulässige `auto_show_delay_ms = 0` wird für sofortige Anzeige wieder ergänzt.
+- Gewünschte Refactorings: Funktion/Methode extrahieren, Variable extrahieren
+  und Symbol umbenennen in Lua beziehungsweise C#. Reale Beispiele und die
+  vorhandenen LSP-Code-Actions beziehungsweise LSP-Rename werden nach dem
+  Blink-Praxistest geprüft. Die Bewertung von `lazydev` bleibt anschließend offen.
 
 ## Phase 9 – Ergänzende Navigation
 
