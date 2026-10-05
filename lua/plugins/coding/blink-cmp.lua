@@ -32,6 +32,16 @@ require("blink.cmp").setup({
         -- Buffer words fall back from LSP/path; LSP snippets use vim.snippet
         -- without enabling a separate snippet collection or provider.
         default = { "lsp", "path", "buffer" },
+        per_filetype = {
+            lua = { inherit_defaults = true, "lazydev" },
+        },
+        providers = {
+            lazydev = {
+                name = "LazyDev",
+                module = "lazydev.integrations.blink",
+                score_offset = 100,
+            },
+        },
     },
     signature = {
         enabled = true,

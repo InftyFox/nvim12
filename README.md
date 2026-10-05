@@ -87,6 +87,9 @@ Treesitter indentation is not enabled.
 `<leader>ca` requests native LSP code actions in Normal mode or for a Visual
 selection. It requires an attached language server that supports code actions;
 the available actions depend on the server and the selected code.
+Native `grn` renames the symbol under the cursor using the LSP. Function/method
+and local-variable extraction use the language server's code actions; no separate
+refactoring plugin is configured.
 
 Markdown files use `render-markdown.nvim` for an in-editor rendered view in all
 modes, with `mini.icons` for code-block language icons. Neovim 0.12 provides the
@@ -159,6 +162,41 @@ Package definitions link to their upstream projects and show how the tools are
 distributed. Use those references to identify the tools you need; this
 configuration installs external tools through Homebrew or the language's
 package manager.
+
+### Neovim Lua Development
+
+[`lazydev.nvim`](https://github.com/folke/lazydev.nvim) supplies LuaJIT settings,
+Neovim types, and plugin libraries to LuaLS while editing this configuration.
+It discovers plugin modules from `require(...)` statements and module annotations
+in open Lua files, including plugins installed through Neovim's native package
+system. This replaces the previous static `VIMRUNTIME` library override in
+`after/lsp/lua_ls.lua`.
+
+Activation is limited to the workspace at `stdpath("config")`, including local
+plugins bundled in this repository. Ordinary Lua projects retain their normal
+LuaLS/project settings. Add separate Neovim plugin workspaces to the `enabled`
+policy in `lua/plugins/coding/lazydev.lua` only when needed.
+
+Blink enables the LazyDev provider for Lua files, preserving the regular LSP,
+path, and buffer providers. LazyDev completes module names inside `require(...)`
+and module annotations; API members and their documentation still come from
+LuaLS after the corresponding library has been added. The provider only becomes
+available in buffers attached to an enabled LazyDev workspace.
+
+On the next start, confirm the `vim.pack` installation of `lazydev.nvim`, then
+restart Neovim and open a Lua file in this configuration. No additional external
+tool or addon is required. Allow LuaLS to finish indexing the new libraries.
+Use `:LazyDev` and `:LazyDev lsp` to inspect the workspace libraries and effective
+LSP settings, and `:checkhealth blink.cmp`, `:checkhealth vim.lsp`, and `:messages`
+to check for errors. Review the new LazyDev entry in `nvim-pack-lock.json` after
+installation.
+
+Repeat the API completion test with `local cmp = require("blink.cmp")`, then
+type `cmp.` and expect members such as `show`, `hide`, and `show_signature`.
+Check hover documentation with `K` on `cmp.show`, module-name completion while
+typing `require("blink.")`, and existing `vim.api` completion. In an ordinary
+Lua project, LazyDev should remain disabled and no Neovim/plugin libraries should
+be added. Remove any temporary incomplete test lines before saving.
 
 ## Completion
 

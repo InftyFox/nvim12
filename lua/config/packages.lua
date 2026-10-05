@@ -11,6 +11,7 @@ vim.pack.add({
     { src = "https://github.com/nvim-lua/plenary.nvim", name = "plenary.nvim" },
     { src = "https://github.com/mikavilpas/yazi.nvim", name = "yazi.nvim" },
     { src = "https://github.com/neovim/nvim-lspconfig", name = "nvim-lspconfig" },
+    { src = "https://github.com/folke/lazydev.nvim", name = "lazydev.nvim" },
     {
         src = "https://github.com/saghen/blink.cmp",
         name = "blink.cmp",

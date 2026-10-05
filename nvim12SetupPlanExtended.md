@@ -146,14 +146,14 @@ Snippet-Manager SnipSnap folgt in Phase 13b.
       Checkbox- und Callout-Vorschläge von `render-markdown.nvim`.
       Snippet-Quellen erst bei konkretem Bedarf ergänzen; die Verwaltung
       persönlicher Snippets bleibt Phase 13b.
-- [ ] Benötigte Refactorings wie Extrahieren und Inline-Änderungen anhand
+- [x] Benötigte Refactorings wie Extrahieren und Inline-Änderungen anhand
       realer Beispiele festlegen und zuerst LSP-Code-Actions prüfen.
-- [ ] Nur für fehlende oder unzureichende Refactorings eine zusätzliche
+- [x] Nur für fehlende oder unzureichende Refactorings eine zusätzliche
       Lösung bewerten; gegebenenfalls benötigte Parser aus Phase 7 nutzen.
-- [ ] Prüfen, ob zusätzliche Lua-Typ- und Completion-Hilfe für die Arbeit an
+- [x] Prüfen, ob zusätzliche Lua-Typ- und Completion-Hilfe für die Arbeit an
       Neovim-Plugins gegenüber dem eingerichteten `lua_ls` einen spürbaren
       Vorteil bietet; `lazydev` ist ein Kandidat, keine Vorentscheidung.
-- [ ] Gewählte Zusatzabhängigkeiten und externe Voraussetzungen in der README
+- [x] Gewählte Zusatzabhängigkeiten und externe Voraussetzungen in der README
       ergänzen.
 
 ### Verifikation
@@ -161,9 +161,9 @@ Snippet-Manager SnipSnap folgt in Phase 13b.
 - [x] Automatische und manuell ausgelöste Vorschläge sowie Bestätigen,
       Abbrechen und der Tab-Workflow funktionieren in den eingerichteten
       Sprachen und Markdown ohne doppelte Completion-Menüs.
-- [ ] Ein repräsentatives Refactoring liefert das erwartete Ergebnis oder
+- [x] Ein repräsentatives Refactoring liefert das erwartete Ergebnis oder
       eine dokumentierte Entscheidung für den bestehenden LSP-Workflow.
-- [ ] Lua-Completion in der eigenen Config bleibt verständlich und
+- [x] Lua-Completion in der eigenen Config bleibt verständlich und
       funktionsfähig.
 
 ### Stopkriterium
@@ -172,12 +172,13 @@ Completion, die tatsächlich benötigten Refactorings und Lua-Hilfen sind
 abgedeckt; diese Phase setzt weder SnipSnap noch die optionalen Sprachprofile
 voraus.
 
-### Zwischenstand – 2026-10-04
+### Abschluss – 2026-10-05
 
-Blink ist installiert; der Nutzer hat die bisherigen Completion-Praxistests
-erfolgreich bestätigt. Die ergänzte Signaturhilfe direkt nach dem Bestätigen
-einer Completion benötigt noch einen Praxistest. **Phase 8 ist noch nicht
-abgeschlossen.**
+**Phase 8 ist abgeschlossen; das Stopkriterium ist erfüllt.**
+
+Der Nutzer hat Blink einschließlich der Signaturhilfe nach dem Bestätigen einer
+Completion und die gewünschten Refactorings erfolgreich geprüft. LazyDev ist
+installiert; die zuvor fehlende Plugin-API-Completion funktioniert nun ebenfalls.
 
 - `blink.cmp` ist mit dem stabilen Release `v1.10.2` registriert und vom Nutzer
   über `vim.pack` installiert. Das erzeugte Lockfile enthält den passenden Tag
@@ -205,11 +206,33 @@ abgeschlossen.**
   `mini.pairs` bestätigt Paaraufteilung und normale Zeilenumbrüche über Enter
   und Shift-Enter. Nach einem ungültigen `update_delay_ms = 0` hat der Nutzer
   beide Delay-Overrides entfernt und den erfolgreichen Start bestätigt. Nur
-  das zulässige `auto_show_delay_ms = 0` wird für sofortige Anzeige wieder ergänzt.
-- Gewünschte Refactorings: Funktion/Methode extrahieren, Variable extrahieren
-  und Symbol umbenennen in Lua beziehungsweise C#. Reale Beispiele und die
-  vorhandenen LSP-Code-Actions beziehungsweise LSP-Rename werden nach dem
-  Blink-Praxistest geprüft. Die Bewertung von `lazydev` bleibt anschließend offen.
+  das zulässige `auto_show_delay_ms = 0` wurde für sofortige Anzeige wieder ergänzt.
+- Der Nutzer hat Funktion/Methode extrahieren, Variable extrahieren und Symbol
+  umbenennen in Lua/C# erfolgreich geprüft. Der bestehende LSP-Workflow genügt;
+  ein zusätzliches Refactoring-Plugin wird nicht benötigt. `<leader>ca` ruft
+  Code-Actions auf; natives `grn` verwendet LSP-Rename.
+- Neovim-API-Completion funktioniert; die zunächst fehlende Plugin-API-Completion
+  nach `local cmp = require("blink.cmp")` wurde durch LazyDevs dynamische
+  Bibliotheksverwaltung behoben und vom Nutzer bestätigt.
+- LazyDev ist über `vim.pack` registriert und wird vor Blink und der
+  LSP-Aktivierung eingerichtet. Es ist gezielt für dieses Config-Workspace
+  einschließlich gebündelter eigener Plugins aktiviert; separate Neovim-Plugin-
+  Repositories werden bei Bedarf ausdrücklich aufgenommen. Die bisherigen
+  statischen LuaJIT-/Runtime-Overrides entfallen zugunsten von LazyDev.
+- Die Blink-Quelle `lazydev.integrations.blink` wird nur für Lua ergänzt und
+  liefert Modulnamen für `require(...)`/Modulannotationen. API-Member und
+  Dokumentation liefert weiterhin `lua_ls`. Installation, Bibliotheksprüfung,
+  Wiederholung des `cmp.`-Tests und Ausschluss gewöhnlicher Lua-Projekte sind
+  in der README beschrieben. Das geprüfte Lockfile enthält LazyDev mit Repository
+  und Revision `ff2cbcba459b637ec3fd165a2be59b7bbaeedf0d`.
+- Die fünf betroffenen Lua-Dateien bestehen StyLua- und Syntaxprüfungen;
+  `git diff --check` und die Konfigurationsvalidierung mit dem installierten
+  Blink bestehen ebenfalls. Die Aktivierungsregel ist isoliert geprüft:
+  Config-Root erlaubt, fremde Roots und Single-File-Workspaces ausgeschlossen.
+  Die Installation und funktionierende Plugin-API-Completion sind durch den
+  Nutzer bestätigt. Es sind keine weiteren Phase-8-Lücken bekannt.
+
+Nächster Arbeitsschritt ist **Phase 9 – Ergänzende Navigation**.
 
 ## Phase 9 – Ergänzende Navigation
 
