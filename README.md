@@ -1,275 +1,94 @@
 # Neovim 0.12 Configuration
 
-A small Neovim 0.12 configuration for macOS on Apple Silicon. It uses a
-separate application name so it can coexist with an existing Neovim 0.11
-setup.
+A Neovim 0.12 configuration for macOS on Apple Silicon, using zsh and the
+standard Homebrew prefix `/opt/homebrew`. It has been used with Neovim 0.12.5.
+The `nvim12` launcher keeps its configuration, data, state, and cache separate
+from an existing `nvim` installation.
 
-## Requirements
+Follow **Base Installation** for Lua, JSON, and YAML. Add only the optional
+language profiles you need afterwards. Markdown is already usable with the
+parsers included in Neovim; it needs no additional external tool.
 
-- macOS on Apple Silicon
-- Homebrew
-- Neovim 0.12
-- Git
-- `curl` for Blink's prebuilt completion matcher download
-- ripgrep (`rg`)
-- fd
-- Yazi
-- Lua Language Server (`lua-language-server`)
-- StyLua
-- JSON Language Server (`vscode-json-language-server`)
-- YAML Language Server (`yaml-language-server`)
-- .NET SDK and C# Language Server (`csharp-ls`) for C# projects
-- `tree-sitter-cli` 0.26.1 or newer, `tar`, `curl`, and a C compiler for additional Treesitter parsers
-- A Nerd Font for navigation and Markdown icons
+Language servers, formatters, linters, CLIs, and SDKs are installed outside
+Neovim. They must be available on the shell's `PATH`; this configuration does
+not install or update them. Plugin configuration and usage are documented in
+the Lua files.
 
-Install Neovim from Homebrew and verify the versioned binary:
+## Base Installation
+
+### 1. Prepare macOS and Homebrew
+
+Install Apple's Command Line Tools if they are not already installed:
 
 ```sh
-brew install neovim
-/opt/homebrew/opt/neovim/bin/nvim --version
+xcode-select --install
 ```
 
-Install the navigation, Lua, JSON, and YAML development tools plus a Nerd Font
-with Homebrew:
+Wait for the installer to finish. If full Xcode or the Command Line Tools are
+already selected, this step can be skipped. Verify the compiler is available:
 
 ```sh
-brew install ripgrep fd yazi lua-language-server stylua
+xcrun --find clang
+```
+
+If Homebrew is not installed, run its installer as documented on
+[brew.sh](https://brew.sh):
+
+```sh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Follow its post-installation instructions. For the standard Apple Silicon
+installation, add this line once to `~/.zprofile`:
+
+```zsh
+eval "$(/opt/homebrew/bin/brew shellenv)"
+```
+
+Open a new terminal, or load it in the current shell:
+
+```sh
+source "$HOME/.zprofile"
+brew --version
+```
+
+### 2. Install Neovim and External Tools
+
+```sh
+brew install neovim git ripgrep fd yazi coreutils
+brew install lua-language-server stylua
 brew install vscode-langservers-extracted yaml-language-server
 brew install --cask font-meslo-lg-nerd-font
 ```
 
-Install the .NET SDK with Homebrew, then install the C# language server as a
-global .NET tool:
+The installed Neovim must be version 0.12.x:
 
 ```sh
-brew install dotnet
-dotnet tool install --global csharp-ls
+/opt/homebrew/opt/neovim/bin/nvim --version
 ```
 
-Alternatively, install the .NET SDK using Microsoft's macOS installer before
-installing `csharp-ls` with the `dotnet tool` command above.
-
-Add the global .NET tools directory to `~/.zshrc` so Neovim started from an
-interactive zsh session can find `csharp-ls`:
-
-```zsh
-export PATH="$HOME/.dotnet/tools:$PATH"
-```
-
-Open a new terminal and confirm that `command -v csharp-ls` resolves to
-`~/.dotnet/tools/csharp-ls`. C# projects need a `.csproj`, `.sln`, or `.slnx`
-file for the language server to find the project root.
-
-Configure the installed Nerd Font in Ghostty:
-
-```ini
-font-family = "MesloLGM Nerd Font Propo"
-```
-
-`rg` provides project text search, `fd` provides fast file discovery, and Yazi
-handles interactive file operations. `lua-language-server` provides Lua LSP
-features. StyLua formats Lua files explicitly with `<leader>cf` and before each
-save. The JSON and YAML language servers provide diagnostics and completion;
-their LSP formatting is used with `<leader>cf` and on save. No separate JSON or
-YAML formatter or linter is required. YAML validation against a particular
-schema requires a schema association in the project or file.
-
-`csharp-ls` provides C# diagnostics, completion, and navigation. C# formatting
-uses the existing LSP fallback with `<leader>cf` and on save when the server
-supports it; no separate C# formatter or linter is configured. The optional
-`c_sharp` Treesitter parser adds syntax-tree highlighting and the class/function
-context at the top of the window. C# files have the `cs` filetype, which this
-config associates with the `c_sharp` parser. Until it is installed, C# retains
-Neovim's regular syntax highlighting. Indentation continues to use Neovim's
-existing filetype behavior even after parser installation; experimental
-Treesitter indentation is not enabled.
-
-`<leader>ca` requests native LSP code actions in Normal mode or for a Visual
-selection. It requires an attached language server that supports code actions;
-the available actions depend on the server and the selected code.
-Native `grn` renames the symbol under the cursor using the LSP. Function/method
-and local-variable extraction use the language server's code actions; no separate
-refactoring plugin is configured.
-
-Markdown files use `render-markdown.nvim` for an in-editor rendered view in all
-modes, with `mini.icons` for code-block language icons. Neovim 0.12 provides the
-required `markdown` and `markdown_inline` parsers; no separate parser or
-Markdown language server needs installing. The plugin provides checkbox and
-callout completion through its in-process LSP. Markdown lines wrap visually at
-word boundaries, without changing the file. No external Markdown formatter or
-linter is configured.
-
-`mini.ai` adds text objects such as `ab` (balanced brackets) and `aq` (quotes)
-for Visual mode and operators, for example `vab` or `daq`. Its `an`/`in`
-mappings deliberately use next-object search; `al`/`il` use last-object search.
-Native incremental selection is preserved in Visual mode as `<leader>ls`
-(expand to a parent node) and `<leader>lS` (shrink to a child node). Start with
-`v`, then use these mappings repeatedly. They retain Neovim's LSP selection-range
-fallback when no Treesitter parser is available and a supporting server is
-attached. Native `[n`/`]n` node navigation and the `g]` tag command remain
-available. `aF` selects a function definition including its signature; `iF`
-selects its body. The exact ranges follow the language queries supplied by
-`nvim-treesitter-textobjects` (the `main` branch), which is loaded as a query
-provider for `mini.ai`. This includes Lua functions and C# methods/local
-functions; for C# expression-bodied functions, `iF` selects the expression.
-These text objects work in Visual mode (`vaF`, `viF`) and with operators
-(`daF`, `ciF`). When adding a language supported by the provider's function
-queries, install its parser; the same mappings work without local query files
-or per-language mapping changes. Languages without those captures need an
-upstream or local query addition. `mini.ai`'s default `af`/`if` still select
-function calls. Class and conditional text objects are not mapped.
-
-`mini.pairs` automatically closes brackets and quotes in Insert mode. Its default
-rules skip pairing after a backslash and skip single-quote pairing after a
-letter. Backspace removes an empty pair, and typing its closing character skips
-over the existing one. Enter accepts the selected Blink completion when its menu
-is visible; otherwise it inserts a pair-aware newline. Shift-Enter dismisses
-completion without accepting it and always inserts that newline. Inside an empty
-`()`, `[]`, or `{}` pair, the closing bracket moves to its own line, with the
-cursor on the inner line. Indentation follows the existing filetype rules.
-Elsewhere a normal newline is inserted; quotes are not split into an extra blank
-line.
-`mini.surround` adds, deletes, and replaces surroundings with `sa{motion}{char}`
-(or `sa{char}` on a Visual selection), `sd{char}`, and `sr{old}{new}`.
-`nvim-treesitter-context` pins the surrounding class or function at the top of
-the window while scrolling in files with a suitable parser; it shows at most
-three context lines. Indent and scope guides are not enabled.
-
-Language servers, formatters, linters, CLIs, and SDKs are installed outside
-Neovim and must be available on `$PATH`. Neovim configures and activates the
-tools but does not install or update them.
-
-### Language Tooling
-
-`nvim-lspconfig` provides the `lua_ls`, `jsonls`, `yamlls`, and `csharp_ls`
-base server profiles. Add only local extensions or overrides under
-`after/lsp/<server>.lua`; Neovim discovers and merges these files
-automatically. Enable each server explicitly with
-`vim.lsp.enable("<server>")` in `lua/config/lsp.lua`.
-
-Put filetype-specific editor options in `after/ftplugin/<filetype>.lua`. These
-files apply to matching buffers; for example, `after/ftplugin/json.lua` sets
-indentation options for JSON files.
-
-Install new language servers and formatters with Homebrew or the language's
-package manager. Register external formatters by filetype in
-`lua/plugins/coding/conform.lua`. Conform prefers a configured external
-formatter and uses LSP formatting when no external formatter is available.
-
-To discover available language servers, formatters, and linters, browse the
-[Mason package registry](https://github.com/mason-org/mason-registry/tree/main/packages).
-Package definitions link to their upstream projects and show how the tools are
-distributed. Use those references to identify the tools you need; this
-configuration installs external tools through Homebrew or the language's
-package manager.
-
-### Neovim Lua Development
-
-[`lazydev.nvim`](https://github.com/folke/lazydev.nvim) supplies LuaJIT settings,
-Neovim types, and plugin libraries to LuaLS while editing this configuration.
-It discovers plugin modules from `require(...)` statements and module annotations
-in open Lua files, including plugins installed through Neovim's native package
-system. This replaces the previous static `VIMRUNTIME` library override in
-`after/lsp/lua_ls.lua`.
-
-Activation is limited to the workspace at `stdpath("config")`, including local
-plugins bundled in this repository. Ordinary Lua projects retain their normal
-LuaLS/project settings. Add separate Neovim plugin workspaces to the `enabled`
-policy in `lua/plugins/coding/lazydev.lua` only when needed.
-
-Blink enables the LazyDev provider for Lua files, preserving the regular LSP,
-path, and buffer providers. LazyDev completes module names inside `require(...)`
-and module annotations; API members and their documentation still come from
-LuaLS after the corresponding library has been added. The provider only becomes
-available in buffers attached to an enabled LazyDev workspace.
-
-On the next start, confirm the `vim.pack` installation of `lazydev.nvim`, then
-restart Neovim and open a Lua file in this configuration. No additional external
-tool or addon is required. Allow LuaLS to finish indexing the new libraries.
-Use `:LazyDev` and `:LazyDev lsp` to inspect the workspace libraries and effective
-LSP settings, and `:checkhealth blink.cmp`, `:checkhealth vim.lsp`, and `:messages`
-to check for errors. Review the new LazyDev entry in `nvim-pack-lock.json` after
-installation.
-
-Repeat the API completion test with `local cmp = require("blink.cmp")`, then
-type `cmp.` and expect members such as `show`, `hide`, and `show_signature`.
-Check hover documentation with `K` on `cmp.show`, module-name completion while
-typing `require("blink.")`, and existing `vim.api` completion. In an ordinary
-Lua project, LazyDev should remain disabled and no Neovim/plugin libraries should
-be added. Remove any temporary incomplete test lines before saving.
-
-## Completion
-
-[`blink.cmp`](https://cmp.saghen.dev/) provides automatic insert-mode completion
-using LSP results, file paths, and words from visible normal buffers. Buffer words
-are a fallback when the LSP and path sources do not return candidates. The first
-candidate is selected automatically, but navigating the menu does not insert text
-until a candidate is accepted. The previous native LSP autocompletion is disabled
-so only Blink owns the menu. Command-line completion remains native.
-
-| Key | Action |
+| Package | Required executables / purpose |
 | --- | --- |
-| Enter | Accept the selected completion, or insert a pair-aware newline if no completion is selected |
-| Shift-Enter | Cancel completion and insert a pair-aware newline |
-| Tab / Shift-Tab | Jump to the next / previous native snippet placeholder; otherwise use the normal key behavior |
-| `Ctrl-n` / `Ctrl-p`, Down / Up | Select the next / previous completion |
-| `Ctrl-Space` | Open completion, or toggle documentation when the menu is open |
-| `Ctrl-e` | Close completion |
-| `Ctrl-d` / `Ctrl-u` | Scroll completion documentation down / up by four lines; otherwise use the normal key behavior |
-| `Ctrl-k` | Toggle signature help |
+| `git` | Repository clone and package installation |
+| `ripgrep`, `fd` | `rg` and `fd` for project searches |
+| `yazi` | `yazi` and `ya` for file operations |
+| `coreutils` | `grealpath` for relative file paths on macOS |
+| `lua-language-server` | Lua language server |
+| `stylua` | Lua formatter |
+| `vscode-langservers-extracted` | `vscode-json-language-server` for JSON/JSONC |
+| `yaml-language-server` | YAML language server |
 
-Documentation appears automatically without an added display delay when the
-selected item provides it. Updates when switching items use Blink's default
-50 ms delay. Experimental signature help is requested after accepting completion
-and on language-server trigger characters, showing the function signature and
-active parameter when the server provides them, without an additional
-documentation block. Blink's default automatic
-function brackets are enabled; `mini.pairs` handles manually typed brackets.
-Ghost text is disabled. LSP-provided snippets expand through native `vim.snippet`;
-no separate snippet provider or collection is enabled.
+Homebrew installs Node as a dependency of the JSON and YAML servers. No
+separate npm installation is needed. macOS supplies `curl`, `tar`, `pbcopy`,
+and `pbpaste`; keep them available for downloads, archives, and the clipboard.
 
-### Installation and Verification
+Lua uses StyLua for formatting. JSON and YAML use language-server formatting;
+no additional formatter or linter is needed for the base setup. YAML validation
+against a specific schema needs a schema association in the file or project.
 
-Blink is pinned to the stable `v1.10.2` release through `vim.pack`. On your first
-start after it is registered, confirm the plugin installation. Blink then uses
-`curl` and Git to download the matching prebuilt Rust matcher for macOS Apple
-Silicon automatically; a Rust toolchain is not required. If the matcher is
-unavailable, the default `prefer_rust_with_warning` behavior falls back to Lua and
-reports a warning. Typo resistance, frecency, and proximity ranking require the
-Rust implementation. See the [matcher documentation](https://cmp.saghen.dev/configuration/fuzzy.html).
+### 3. Configure zsh and the Terminal
 
-Wait for installation and the matcher download to finish, then restart Neovim.
-Check `:checkhealth blink.cmp`, `:checkhealth vim.lsp`, and `:messages`. The Blink
-health report should show the Rust matcher is available. The generated
-`nvim-pack-lock.json` records Blink's revision and release tag; review it after
-installation. Advancing Blink to another release requires deliberately changing
-the registered tag before updating the plugin.
-
-Verify automatic and manual completion in Lua, C#, JSON, YAML, and Markdown.
-Check Markdown checkbox and callout suggestions from the existing
-`render-markdown` LSP, plus path completion in a quoted relative path and buffer
-word completion when neither LSP nor path suggestions are available. Check Enter,
-Shift-Enter, snippet navigation, documentation scrolling, and signature help.
-Function completion must not add duplicate brackets, and only one completion
-menu should appear. Shift-Enter must arrive as a distinct key from the terminal;
-verify `:verbose imap <S-CR>` if its behavior is unexpected.
-
-For an isolated native snippet navigation check, run this command in a scratch
-buffer, then use Tab and Shift-Tab between the placeholders:
-
-```vim
-:lua vim.snippet.expand("${1:first} ${2:second}$0")
-```
-
-## Installation
-
-Clone this repository as the `nvim-012` configuration:
-
-```sh
-git clone <repository-url> "$HOME/.config/nvim-012"
-```
-
-Add a dedicated launcher to `~/.zshrc`:
+Add this launcher to `~/.zshrc`:
 
 ```zsh
 nvim12() {
@@ -277,89 +96,276 @@ nvim12() {
 }
 ```
 
-Start a new shell, then launch the configuration:
+Select the installed Nerd Font in your terminal. For Ghostty, add this setting
+to `~/.config/ghostty/config` and reload its configuration:
+
+```ini
+font-family = "MesloLGM Nerd Font Propo"
+```
+
+Open a new terminal to load the shell changes. Check the base executables:
+
+```sh
+command -v git curl tar rg fd yazi ya grealpath
+command -v lua-language-server stylua node
+command -v vscode-json-language-server yaml-language-server
+command -v pbcopy pbpaste
+```
+
+The Homebrew tools should resolve under `/opt/homebrew/bin`. If an old Mason
+directory takes precedence, adjust your shell's `PATH` so the Homebrew tools
+are selected. `NVIM_APPNAME` separates Neovim's directories, but does not
+isolate its inherited `PATH`.
+
+### 4. Clone the Configuration
+
+```sh
+mkdir -p "$HOME/.config"
+git clone https://github.com/InftyFox/nvim12.git "$HOME/.config/nvim-012"
+```
+
+The target directory must not already contain another configuration. If this
+repository is already cloned there, use that checkout instead.
+
+The repository includes `nvim-pack-lock.json`. Keep it with the configuration:
+it records the plugin revisions to install on a fresh system.
+
+### 5. First Start
+
+The first start requires network access for package installation and the
+prebuilt completion matcher download:
 
 ```sh
 nvim12
 ```
 
-Neovim keeps this setup's data, state, and cache separate under directories
-named `nvim-012`.
+Confirm the `vim.pack` installation prompt and wait for installation and
+downloads to finish. The completion matcher has a prebuilt macOS Apple Silicon
+binary; a Rust toolchain is not required. Restart Neovim after setup finishes.
 
-On the first start, `vim.pack` asks for confirmation before installing the
-registered plugins. Confirm the installation, then verify the configured
-workflows before committing the generated `nvim-pack-lock.json`. Later starts
-use the installed plugin and the revision recorded in that lockfile.
+Lua and Markdown parsers are included in Neovim. The base setup needs no
+additional parser installation or `tree-sitter` CLI. The lockfile records
+plugins, not separately compiled parsers.
 
-### Treesitter Parsers
+### 6. Verify the Base Setup
 
-Neovim includes parsers for Lua and Markdown. Additional parsers are installed
-separately from the plugins; `nvim-pack-lock.json` pins plugins, not compiled
-parsers. Install only the parsers needed for configured language profiles.
-Currently C# needs the `c_sharp` parser for its syntax tree and pinned context.
+Run these commands inside Neovim:
 
-On macOS, install the parser build tools yourself before installing a parser:
-
-```sh
-brew install tree-sitter
-tree-sitter --version
-xcrun --find clang
+```vim
+:checkhealth vim.deprecated
+:checkhealth vim.lsp
+:checkhealth vim.treesitter
+:checkhealth blink.cmp
+:checkhealth yazi
+:messages
 ```
 
-`tree-sitter-cli` must be version 0.26.1 or later. Install Apple's Command Line
-Tools if `xcrun --find clang` cannot find a C compiler. `tar` and `curl` must
-also be on `$PATH`. After the first Neovim start has installed the registered
-plugins, install the C# parser inside Neovim:
+The completion health report should find the prebuilt matcher. Open a Lua file
+in this checkout and representative JSON and YAML files; check the attached
+servers with `:checkhealth vim.lsp` and confirm formatting on save. The enabled
+base server names are `lua_ls`, `jsonls`, and `yamlls`.
+
+Also check startup with a directory (`nvim12 .`). Once installation is complete,
+restart without network access to confirm the installed packages and matcher
+are sufficient. Files or projects that use remote schemas may still need the
+network for those schemas.
+
+Use `:checkhealth` for a broader report when needed. Missing tools for optional
+features, such as parser compilation, do not mean the base installation is
+incomplete.
+
+## Optional Language Profiles
+
+### C#
+
+Skip this section if you do not need C#. The profile uses `csharp_ls` and has
+been used with .NET 10 and `csharp-ls` 0.28.0. This server version requires a
+.NET 10 runtime; a project may additionally require its own SDK version through
+`global.json`.
+
+#### Install the SDK and Language Server
+
+```sh
+brew install dotnet
+```
+
+For this Homebrew installation, add these lines to `~/.zshrc`:
+
+```zsh
+export DOTNET_ROOT="/opt/homebrew/opt/dotnet/libexec"
+export PATH="$HOME/.dotnet/tools:$PATH"
+```
+
+Open a new terminal, then install the tested language-server version:
+
+```sh
+dotnet tool install --global csharp-ls --version 0.28.0
+dotnet --list-sdks
+dotnet --list-runtimes
+command -v csharp-ls
+```
+
+Confirm that .NET 10 is listed and `csharp-ls` resolves to
+`$HOME/.dotnet/tools/csharp-ls`. If the global tool is already installed, inspect
+its version with `dotnet tool list --global` rather than installing it again.
+The `DOTNET_ROOT` above applies to Homebrew's `dotnet` formula; a different SDK
+installation needs its own runtime location.
+
+Restart `nvim12`. The existing configuration enables `csharp_ls` automatically
+when `csharp-ls` is executable on `PATH`. Without that executable the server
+stays disabled. No additional Lua configuration is needed for this profile.
+
+#### Install the C# Parser
+
+Follow [Parser Build Tools](#parser-build-tools), then run inside Neovim:
 
 ```vim
 :TSInstall c_sharp
 ```
 
-Wait for the installation to finish, then reopen a C# file. Use
-`:checkhealth nvim-treesitter`, `:checkhealth vim.treesitter`, `:Inspect`, and
-`:InspectTree` to verify the parser and highlighting. If an install fails,
-`:TSLog` shows the installer messages. To add another language later, first
-check that it is actually needed, install its parser with `:TSInstall {parser}`,
-and explicitly enable highlighting for its filetype, as done for C# in
-`lua/plugins/coding/treesitter.lua`. Installing a parser alone does not enable
-Treesitter highlighting.
+Wait for installation to finish, then reopen the C# file. The configuration
+already associates the `cs` filetype with `c_sharp` and enables its highlighting
+when the parser is installed. Without it, regular syntax highlighting remains
+available.
 
-## Plugin Updates
+#### Verify the Profile
 
-Update all registered plugins from inside Neovim:
+Open a C# project containing a `.csproj`, `.sln`, or `.slnx` file so the server
+can locate its root. Run:
+
+```vim
+:checkhealth vim.lsp
+:checkhealth nvim-treesitter
+:checkhealth vim.treesitter
+:InspectTree
+:messages
+```
+
+Confirm `csharp_ls` attaches to the expected project, diagnostics and completion
+work, and formatting succeeds. Formatting uses the existing LSP fallback; no
+separate C# formatter or linter is configured. Build and test commands remain
+external to Neovim.
+
+## Adding an Undocumented Language
+
+Use this process for a language that has no dedicated chapter yet. Add a
+dedicated profile chapter once its installation and configuration are working.
+
+1. **Find the tools and server profile.** Browse the
+   [nvim-lspconfig server configurations](https://github.com/neovim/nvim-lspconfig/tree/master/lsp)
+   for server names, commands, filetypes, root detection, and settings. The
+   [Mason Package Registry](https://github.com/mason-org/mason-registry/tree/main/packages)
+   lists language servers, formatters, and linters; its package definitions link
+   to upstream repositories and describe how the tools are distributed. Use
+   these references to choose tools, then install them with Homebrew or the
+   language's package manager.
+2. **Install and verify the external tools.** Include the required SDK/runtime
+   and `PATH` entries. Verify the executable paths from the same terminal that
+   launches `nvim12`. Prefer project-local formatter and linter versions when
+   the project defines them.
+3. **Configure and enable the server.** For a provided profile, enable its name
+   with `vim.lsp.enable("<server>")` in `lua/config/lsp.lua`. Add only local
+   extensions or overrides in `after/lsp/<server>.lua`; Neovim discovers and
+   merges them. For an optional profile, guard activation with an executable
+   check as done for C#. If no base profile exists, define the command,
+   filetypes, and project-root rules with `vim.lsp.config()` before enabling it.
+4. **Configure formatting and filetype options.** Register an external formatter
+   by filetype in `lua/plugins/coding/conform.lua` when needed. Otherwise the
+   existing formatting policy falls back to a supporting attached LSP. Put
+   indentation and other buffer-local settings in
+   `after/ftplugin/<filetype>.lua`. Installing a linter alone does not integrate
+   its diagnostics; configure that integration only when it is needed.
+5. **Add a parser if needed.** Follow [Parser Build Tools](#parser-build-tools),
+   then run `:TSInstall <parser>`. If the parser name differs from the filetype,
+   register the association with `vim.treesitter.language.register()`. Explicitly
+   enable highlighting for that filetype, using
+   `lua/plugins/coding/treesitter.lua` as the existing example. Installing a
+   parser alone does not enable highlighting.
+6. **Verify in a representative project.** Check the filetype, server attachment,
+   project root, diagnostics, completion, navigation, and formatting. For a
+   newly installed parser, also check `:InspectTree`. Document the exact
+   installation steps and project assumptions in the new profile chapter.
+
+### Parser Build Tools
+
+Install these only when a chosen language profile needs an additional parser:
+
+```sh
+brew install tree-sitter
+tree-sitter --version
+xcrun --find clang
+command -v clang tar curl
+```
+
+The `tree-sitter` CLI must be version 0.26.1 or newer and installed through
+Homebrew, not npm. A C compiler, `tar`, and `curl` must be available. The Command
+Line Tools from the base installation provide the compiler.
+
+Run parser installation commands after the first Neovim start has installed
+the registered packages. If compilation fails, inspect `:TSLog`.
+
+## Updates and Recovery
+
+### External Tools
+
+Update only the tools for profiles you use. Review the available Neovim version
+with `brew info neovim` before upgrading it; this configuration targets 0.12.x.
+For the base installation:
+
+```sh
+brew update
+brew upgrade neovim git ripgrep fd yazi coreutils lua-language-server stylua vscode-langservers-extracted yaml-language-server
+```
+
+External tools are not pinned by `nvim-pack-lock.json`; review SDK and server
+compatibility when updating an optional profile. For C#, keep the .NET 10
+runtime available while using `csharp-ls` 0.28.0. Deliberately select and verify
+a new server version
+before replacing it with `dotnet tool update --global csharp-ls --version <version>`.
+
+### Packages and Parsers
+
+Update registered packages inside Neovim:
 
 ```vim
 :lua vim.pack.update()
 ```
 
-Review the proposed changes in the confirmation buffer. Write the buffer with
-`:write` to apply them or close it with `:quit` to discard them. Restart Neovim
-after applying an update, review the lockfile diff, and commit the updated
-`nvim-pack-lock.json` together with any required configuration changes.
+Review the confirmation buffer. Apply with `:write` or discard with `:quit`,
+then restart Neovim. Review the `nvim-pack-lock.json` diff and keep the updated
+lockfile with any required configuration changes. Blink is registered at a
+fixed release tag; changing its release requires updating the tag in
+`lua/config/packages.lua` deliberately.
 
-After updating `nvim-treesitter`, run `:TSUpdate c_sharp` in Neovim to keep the
-installed C# parser and its queries compatible with the plugin, then reopen the
-C# file. `:TSUpdate` without an argument updates all parsers installed through
-`nvim-treesitter`.
+After updating `nvim-treesitter`, update any additional parsers you installed
+with `:TSUpdate`, or `:TSUpdate c_sharp` for C# alone. Skip this step if you use
+only Neovim's bundled parsers. Reopen affected files afterwards.
 
-To restore the plugin revisions from the committed lockfile after an unwanted
-update, first restore `nvim-pack-lock.json` with Git. Restart Neovim, then run:
+To undo an unwanted package update, restore the previous lockfile revision
+with Git, restart Neovim, then run:
 
 ```vim
 :lua vim.pack.update(nil, { offline = true, target = "lockfile" })
 ```
 
-Review and apply the proposed rollback with `:write`, then restart Neovim.
+Review and apply the rollback with `:write`, then restart again. If restoring
+an older parser-manager revision, reinstall compatible additional parsers with
+`:TSUpdate` as well. A lockfile rollback does not restore external tools.
 
-## Health Checks
+The `nvim12` launcher leaves an existing Neovim 0.11 configuration separate;
+if present, its launcher remains available during setup.
 
-Run the following commands inside Neovim:
+## Troubleshooting
 
-```vim
-:checkhealth
-:checkhealth vim.deprecated
-:checkhealth vim.lsp
-```
-
-The existing Neovim 0.11 binary and configuration remain unchanged and provide
-the rollback path during setup.
+| Problem | Check / action |
+| --- | --- |
+| `brew` is not found | Load Homebrew's `shellenv` from `~/.zprofile` and open a new terminal. |
+| Wrong Neovim version or configuration | Run `/opt/homebrew/opt/neovim/bin/nvim --version`; inside `nvim12`, run `:lua print(vim.fn.stdpath("config"))` and expect `~/.config/nvim-012`. |
+| A tool works only with the old setup | Use `command -v <tool>` to detect old Mason paths. In Neovim, `:lua print(vim.fn.exepath("<tool>"))` shows the inherited executable path. |
+| Icons are missing | Select the installed Nerd Font in the terminal and reload its configuration. |
+| A base language server does not attach | Check its executable, the detected filetype, and `:checkhealth vim.lsp`; inspect `:messages`. |
+| C# does not attach | Check `csharp-ls`, the .NET runtime and `DOTNET_ROOT`, and the project-root files; restart after changing `PATH`. |
+| Completion matcher download fails | Check Git, `curl`, network access, `:checkhealth blink.cmp`, and `:messages`; it may fall back to Lua with a warning. |
+| Package installation fails | Restore the intended lockfile if installation changed it, fix the download problem, and restart. |
+| Additional parser installation fails | Check the CLI version, compiler, `tar`, and `curl`; inspect `:TSLog`. |
+| Shift-Enter behaves like Enter | Ensure the terminal sends a distinct Shift-Enter key; inspect `:verbose imap <S-CR>`. |

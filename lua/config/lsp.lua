@@ -31,4 +31,9 @@ vim.keymap.set({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "LS
 vim.lsp.enable("lua_ls")
 vim.lsp.enable("jsonls")
 vim.lsp.enable("yamlls")
-vim.lsp.enable("csharp_ls")
+
+-- C# is optional: installing its external server on PATH enables the profile
+-- on the next start without requiring the base setup to include a .NET SDK.
+if vim.fn.executable("csharp-ls") == 1 then
+    vim.lsp.enable("csharp_ls")
+end
